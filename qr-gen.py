@@ -10,7 +10,7 @@ def generate_qr_code(data, qr_filename):
         version=8,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=10,
-        border=1,
+        border=0,
     )
     qr.add_data(data)
     qr.make(fit=True)
