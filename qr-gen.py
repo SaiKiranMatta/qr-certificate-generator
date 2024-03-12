@@ -9,7 +9,7 @@ def generate_qr_code(data, qr_filename):
     qr = qrcode.QRCode(
         version=8,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=10,
+        box_size=40,
         border=0,
     )
     qr.add_data(data)
