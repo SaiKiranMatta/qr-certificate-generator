@@ -10,6 +10,8 @@ from typing import Optional
 
 app = FastAPI()
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
 class CertificateData(BaseModel):
     base_url: str
     output_directory: str
@@ -29,10 +31,14 @@ async def generate_certificates(
     template: UploadFile = File(...),
     excel: UploadFile = File(...)
 ):
-    # Save uploaded files
-    template_path = os.path.join('static', 'template.png')
-    excel_path = os.path.join('static', 'data.xlsx')
+    # Define paths
+    template_path = os.path.join(base_dir, 'static', 'templates', 'template.png')
+    excel_path = os.path.join(base_dir, 'static', 'data', 'data.xlsx')
+    qr_path = os.path.join(base_dir, 'static', 'qr_code.png')
+    output_directory_path = os.path.join(base_dir, output_directory)
+    json_file_path = os.path.join(base_dir, json_directory, json_file_name)
     
+    # Save uploaded files
     with open(template_path, "wb") as f:
         f.write(await template.read())
     
@@ -43,7 +49,7 @@ async def generate_certificates(
     certificate_template = Image.open(template_path)
     df = pd.read_excel(excel_path)
 
-    os.makedirs(output_directory, exist_ok=True)
+    os.makedirs(output_directory_path, exist_ok=True)
     all_certificates_data = []
     
     def generate_qr_code(data, qr_filename):
@@ -60,7 +66,7 @@ async def generate_certificates(
 
     def overlay_qr_code(certificate, text, qr_code, text_position, qr_position, output_filename):
         draw = ImageDraw.Draw(certificate)
-        font_path = "baskervi.ttf"  # Path to the font
+        font_path = os.path.join(base_dir, 'static', 'fonts', 'baskervi.ttf')  # Path to the font
         font = ImageFont.truetype(font_path, 90)
         text_width = font.getlength(text)
         text_x = text_position[0] - text_width // 2
@@ -77,25 +83,24 @@ async def generate_certificates(
     for index, row in df.iterrows():
         name = row['Name']
         fname = ' '.join(''.join((word[i].upper() if (i == 0 or (i < len(word) - 1 and word[i-1] == '.')) else char.lower()) for i, char in enumerate(word)) for word in name.split())
-        department = row['Department']
         code = fname.lower().replace(" ", "").replace(".", "") + code_serial + str(index + codes_start_number).zfill(4)
         qr_data = base_url + code
-        qr_filename = "static/qr_code.png"
+        qr_filename = qr_path
         generate_qr_code(qr_data, qr_filename)
         qr_code = Image.open(qr_filename)
         overlay_text = row["Holder"]
         text_position = (1750, 1169)
         qr_position = (1550, 1720)
-        output_filename = os.path.join(output_directory, f"{fname}.png")
+        output_filename = os.path.join(output_directory_path, f"{fname}.png")
         overlay_qr_code(certificate_template.copy(), overlay_text, qr_code, text_position, qr_position, output_filename)
+        print(f"Certificate for {name} generated")
         certificate_data = {
             "code": code,
             "holder": overlay_text,
         }
         all_certificates_data.append(certificate_data)
     
-    all_certificates_json_filename = os.path.join(json_directory, json_file_name)
-    with open(all_certificates_json_filename, 'w') as json_file:
+    with open(json_file_path, 'w') as json_file:
         json.dump(all_certificates_data, json_file, indent=2)
     
     return JSONResponse(content={"message": "Certificates generated successfully!"})
