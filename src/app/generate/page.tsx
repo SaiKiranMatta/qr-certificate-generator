@@ -32,11 +32,16 @@ const Page: NextPage = () => {
         formData.append("json_directory", jsonDir);
 
         try {
-            await fetch("/api/generate-certificates", {
+            const response = await fetch("/api/generate-certificates", {
                 method: "POST",
                 body: formData,
             });
 
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
             alert("Certificates generated successfully!");
         } catch (error) {
             console.error(error);
