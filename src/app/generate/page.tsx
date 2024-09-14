@@ -2,9 +2,15 @@
 
 import { NextPage } from "next";
 import { useState } from "react";
+import { AgGridReact } from "ag-grid-react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import * as XLSX from "xlsx";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
+import { ColDef } from "ag-grid-community";
+import { useTheme } from "next-themes";
 
 const Page: NextPage = () => {
     const [baseUrl, setBaseUrl] = useState(
@@ -17,6 +23,47 @@ const Page: NextPage = () => {
     const [codesStartNumber, setCodesStartNumber] = useState(0);
     const [jsonFileName, setJsonFileName] = useState("Data.json");
     const [jsonDir, setJsonDir] = useState("");
+    const [columnDefs, setColumnDefs] = useState<ColDef[]>([
+        { field: "Name" },
+        { field: "Department", cellEditor: "agTextCellEditor" },
+    ]);
+    const [rowData, setRowData] = useState<
+        { Name: string; Department: string }[]
+    >([]);
+    const { resolvedTheme } = useTheme();
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setExcelFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = new Uint8Array(e.target?.result as ArrayBuffer);
+                const workbook = XLSX.read(data, { type: "array" });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const parsedData = XLSX.utils.sheet_to_json(sheet, {
+                    header: 1,
+                });
+
+                const filteredData = parsedData.filter((row: any) =>
+                    row.some(
+                        (cell: any) =>
+                            cell !== null && cell !== undefined && cell !== ""
+                    )
+                );
+
+                // Extract columns and data
+                const headers = parsedData[0];
+                const processedData = filteredData.map((row: any) => ({
+                    Name: row[0],
+                    Department: row[1],
+                }));
+                setRowData(processedData);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -87,12 +134,25 @@ const Page: NextPage = () => {
                     <Input
                         type="file"
                         id="excel"
-                        onChange={(e) =>
-                            setExcelFile(e.target.files?.[0] || null)
-                        }
+                        onChange={handleFileUpload}
                         className="form-control"
                         accept=".xlsx"
                         required
+                    />
+                </div>
+                <div
+                    className={`${
+                        resolvedTheme == "dark"
+                            ? "  ag-theme-quartz-dark"
+                            : "ag-theme-quartz"
+                    } w-full h-96`}
+                >
+                    <AgGridReact
+                        rowData={rowData}
+                        columnDefs={columnDefs}
+                        defaultColDef={{ flex: 1 }}
+                        domLayout="normal"
+                        className=""
                     />
                 </div>
                 <div className="form-group">
