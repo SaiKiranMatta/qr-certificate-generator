@@ -131,7 +131,7 @@ const GenerateCertificate = () => {
     const [textPosition, setTextPosition] = useState({ x: 100, y: 100 });
     const [qrPosition, setQrPosition] = useState({ x: 200, y: 200 });
     const [qrSize, setQrSize] = useState(400);
-
+    const [textColor, setTextColor] = useState("#000000");
     const textRef = useRef<any>(null);
     const [loadedImage] = useImage(templateImage || "");
 
@@ -243,6 +243,7 @@ const GenerateCertificate = () => {
                                     <Text
                                         text="{Name} of {Department} Department"
                                         fontSize={textSize}
+                                        fill={textColor}
                                         x={textPosition.x / scale}
                                         y={textPosition.y / scale}
                                         ref={textRef}
@@ -278,11 +279,57 @@ const GenerateCertificate = () => {
                                 <div className="mt-4 space-y-4 w-full">
                                     <div className="flex space-x-4 w-full gap-4">
                                         <div className="flex-1">
+                                            <label htmlFor="textSize">
+                                                Font Size:
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                id="textSize"
+                                                value={textSize}
+                                                onChange={(e) => {
+                                                    // We directly update the `x` position without adding or subtracting width
+                                                    setTextSize(
+                                                        Number(e.target.value)
+                                                    );
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <label htmlFor="textColor">
+                                                Text Color:
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                id="textColor"
+                                                value={textColor}
+                                                onChange={(e) =>
+                                                    setTextColor(e.target.value)
+                                                }
+                                            />
+                                        </div>
+                                        <div className="flex-1 flex flex-col">
+                                            <label htmlFor="qrSize">
+                                                QR Code Size:
+                                            </label>
+                                            <Input
+                                                type="text"
+                                                id="qrSize"
+                                                value={qrSize}
+                                                onChange={(e) =>
+                                                    setQrSize(
+                                                        Number(e.target.value)
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex space-x-4 w-full gap-4">
+                                        <div className="flex-1">
                                             <label htmlFor="textX">
                                                 Text X Coordinate (Center):
                                             </label>
                                             <Input
-                                                type="number"
+                                                type="text"
                                                 id="textX"
                                                 value={
                                                     (textPosition.x +
@@ -313,7 +360,7 @@ const GenerateCertificate = () => {
                                                 Text Y Coordinate (Top):
                                             </label>
                                             <Input
-                                                type="number"
+                                                type="text"
                                                 id="textY"
                                                 value={textPosition.y / scale}
                                                 onChange={(e) =>
@@ -357,7 +404,7 @@ const GenerateCertificate = () => {
                                                 QR Code X Coordinate (Left):
                                             </label>
                                             <Input
-                                                type="number"
+                                                type="text"
                                                 id="qrX"
                                                 value={qrPosition.x / scale}
                                                 onChange={(e) =>
@@ -376,7 +423,7 @@ const GenerateCertificate = () => {
                                                 QR Code Y Coordinate (Top):
                                             </label>
                                             <Input
-                                                type="number"
+                                                type="text"
                                                 id="qrY"
                                                 value={qrPosition.y / scale}
                                                 onChange={(e) =>
@@ -425,6 +472,54 @@ const GenerateCertificate = () => {
                         id="outputDir"
                         value={outputDir}
                         onChange={(e) => setOutputDir(e.target.value)}
+                        className="form-control"
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="codeSerial">Code Serial:</label>
+                    <Input
+                        type="text"
+                        id="codeSerial"
+                        value={codeSerial}
+                        onChange={(e) => setCodeSerial(e.target.value)}
+                        className="form-control"
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="codesStartNumber">
+                        Codes Start Number:
+                    </label>
+                    <Input
+                        type="text"
+                        id="codesStartNumber"
+                        value={codesStartNumber}
+                        onChange={(e) =>
+                            setCodesStartNumber(Number(e.target.value))
+                        }
+                        className="form-control"
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="jsonFileName">Output JSON File Name:</label>
+                    <Input
+                        type="text"
+                        id="jsonFileName"
+                        value={jsonFileName}
+                        onChange={(e) => setJsonFileName(e.target.value)}
+                        className="form-control"
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="jsonDir">Output JSON Directory:</label>
+                    <Input
+                        type="text"
+                        id="jsonDir"
+                        value={jsonDir}
+                        onChange={(e) => setJsonDir(e.target.value)}
                         className="form-control"
                         required
                     />
