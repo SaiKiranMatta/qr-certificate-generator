@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Rewrites for API and documentation endpoints
     rewrites: async () => {
         return [
             {
@@ -25,6 +26,24 @@ const nextConfig = {
             },
         ];
     },
+
+    // Webpack configuration
+    webpack: (config) => {
+        // Add externals to webpack configuration
+        config.externals.push({
+            "utf-8-validate": "commonjs utf-8-validate",
+            bufferutil: "commonjs bufferutil",
+            canvas: "commonjs canvas",
+        });
+
+        // Uncomment to enable infrastructure logging
+        // config.infrastructureLogging = { debug: /PackFileCache/ };
+
+        return config;
+    },
+
+    // Uncomment to enable React Strict Mode
+    // reactStrictMode: false,
 };
 
 export default nextConfig;
