@@ -20,6 +20,7 @@ const GenerateCertificate = () => {
     );
     const [templateFile, setTemplateFile] = useState<File | null>(null);
     const [excelFile, setExcelFile] = useState<File | null>(null);
+    const [svgFile, setSvgFile] = useState<File | null>(null);
     const [outputDir, setOutputDir] = useState("");
     const [codeSerial, setCodeSerial] = useState("RFBM");
     const [codesStartNumber, setCodesStartNumber] = useState(0);
@@ -77,10 +78,11 @@ const GenerateCertificate = () => {
             };
 
             const designData = {
-                templateImage,
                 textSize,
+                textColor,
                 imageSize,
                 textCenterCoordinates,
+                qrSize,
                 qrPosition: {
                     x: qrPosition.x / scale,
                     y: qrPosition.y / scale,
@@ -91,6 +93,7 @@ const GenerateCertificate = () => {
             const formData = new FormData();
             formData.append("base_url", baseUrl);
             formData.append("template", templateFile as Blob);
+            formData.append("svg_template", svgFile as Blob);
             formData.append("excel", excelFile as Blob);
             formData.append("output_directory", outputDir);
             formData.append("code_serial", codeSerial);
@@ -109,7 +112,7 @@ const GenerateCertificate = () => {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                alert("Certificates generated successfully!");
+                alert("Certificates generation started!");
             } catch (error) {
                 console.error(error);
                 alert("An error occurred while generating certificates.");
@@ -464,6 +467,18 @@ const GenerateCertificate = () => {
                             )}
                         </div>
                     )}
+                </div>
+                <div className="form-group">
+                    <label htmlFor="svg">Upload SVG File (SVG):</label>
+                    <Input
+                        type="file"
+                        id="svg"
+                        onChange={(e) => {
+                            setSvgFile(e?.target?.files?.[0] as File);
+                        }}
+                        className="form-control"
+                        accept=".svg"
+                    />
                 </div>
                 <div className="form-group">
                     <label htmlFor="outputDir">Output Directory:</label>
