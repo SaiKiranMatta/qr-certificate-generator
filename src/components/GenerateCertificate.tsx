@@ -105,8 +105,6 @@ const GenerateCertificate = () => {
             formData.append("output_directory", outputDir);
             formData.append("code_serial", codeSerial);
             formData.append("codes_start_number", codesStartNumber.toString());
-            formData.append("json_file_name", jsonFileName);
-            formData.append("json_directory", jsonDir);
             formData.append("design_data", JSON.stringify(designData));
 
             try {
@@ -524,28 +522,7 @@ const GenerateCertificate = () => {
                         required
                     />
                 </div>
-                <div className="form-group">
-                    <label htmlFor="jsonFileName">Output JSON File Name:</label>
-                    <Input
-                        type="text"
-                        id="jsonFileName"
-                        value={jsonFileName}
-                        onChange={(e) => setJsonFileName(e.target.value)}
-                        className="form-control"
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="jsonDir">Output JSON Directory:</label>
-                    <Input
-                        type="text"
-                        id="jsonDir"
-                        value={jsonDir}
-                        onChange={(e) => setJsonDir(e.target.value)}
-                        className="form-control"
-                        required
-                    />
-                </div>
+
                 <Button type="submit" className="btn btn-primary">
                     Generate Certificates
                 </Button>
