@@ -13,6 +13,12 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import { ColDef } from "ag-grid-community";
 import { useTheme } from "next-themes";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar } from "./ui/calendar";
+import Link from "next/link";
 
 const GenerateCertificate = () => {
     const [baseUrl, setBaseUrl] = useState(
@@ -20,12 +26,14 @@ const GenerateCertificate = () => {
     );
     const [templateFile, setTemplateFile] = useState<File | null>(null);
     const [excelFile, setExcelFile] = useState<File | null>(null);
+    const [textFormat, setTextFormat] = useState<string>(
+        "{Name} of {Department} Department"
+    );
     const [svgFile, setSvgFile] = useState<File | null>(null);
     const [outputDir, setOutputDir] = useState("");
     const [codeSerial, setCodeSerial] = useState("RFBM");
     const [codesStartNumber, setCodesStartNumber] = useState(0);
-    const [jsonFileName, setJsonFileName] = useState("Data.json");
-    const [jsonDir, setJsonDir] = useState("");
+    const [date, setDate] = useState<Date>();
     const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
     const [rowData, setRowData] = useState<
         { Name: string; Department: string }[]
@@ -100,12 +108,14 @@ const GenerateCertificate = () => {
             const formData = new FormData();
             formData.append("base_url", baseUrl);
             formData.append("template", templateFile as Blob);
+            formData.append("overlay_format", textFormat);
             formData.append("svg_template", svgFile as Blob);
             formData.append("excel", excelFile as Blob);
             formData.append("output_directory", outputDir);
             formData.append("code_serial", codeSerial);
             formData.append("codes_start_number", codesStartNumber.toString());
             formData.append("design_data", JSON.stringify(designData));
+            formData.append("date", date?.toDateString() as string);
 
             try {
                 const response = await fetch("/api/generate-certificates", {
@@ -215,6 +225,17 @@ const GenerateCertificate = () => {
                         domLayout="normal"
                     />
                 </div>
+                <div className="form-group">
+                    <label htmlFor="textFormat">Dynamic Text Format:</label>
+                    <Input
+                        type="text"
+                        id="textFormat"
+                        value={textFormat}
+                        onChange={(e) => setTextFormat(e.target.value)}
+                        className="form-control"
+                        required
+                    />
+                </div>
                 <div className="mt-10">
                     <label htmlFor="template">
                         Upload Certificate Template (PNG/JPG):
@@ -249,7 +270,7 @@ const GenerateCertificate = () => {
                                         />
                                     )}
                                     <Text
-                                        text="{Name} of {Department} Department"
+                                        text={textFormat}
                                         fontSize={textSize}
                                         fill={textColor}
                                         x={textPosition.x / scale}
@@ -474,7 +495,18 @@ const GenerateCertificate = () => {
                     )}
                 </div>
                 <div className="form-group">
-                    <label htmlFor="svg">Upload SVG File (SVG):</label>
+                    <label htmlFor="svg">
+                        Upload SVG File (SVG):{" "}
+                        <Link
+                            href={
+                                "https://pixelied.com/convert/png-converter/png-to-svg"
+                            }
+                            target="blank"
+                            className=" text-blue-600 hover:underline underline-offset-2 "
+                        >
+                            Convert png to svg
+                        </Link>
+                    </label>
                     <Input
                         type="file"
                         id="svg"
@@ -522,7 +554,35 @@ const GenerateCertificate = () => {
                         required
                     />
                 </div>
-
+                <div className="form-group flex flex-col">
+                    <label htmlFor="date">Certificate Generation Date:</label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant={"outline"}
+                                className={cn(
+                                    " justify-start text-left font-normal",
+                                    !date && "text-muted-foreground"
+                                )}
+                            >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {date ? (
+                                    format(date, "PPP")
+                                ) : (
+                                    <span>Pick a date</span>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                                mode="single"
+                                selected={date}
+                                onSelect={setDate}
+                                initialFocus
+                            />
+                        </PopoverContent>
+                    </Popover>
+                </div>
                 <Button type="submit" className="btn btn-primary">
                     Generate Certificates
                 </Button>
