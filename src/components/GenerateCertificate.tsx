@@ -26,10 +26,7 @@ const GenerateCertificate = () => {
     const [codesStartNumber, setCodesStartNumber] = useState(0);
     const [jsonFileName, setJsonFileName] = useState("Data.json");
     const [jsonDir, setJsonDir] = useState("");
-    const [columnDefs, setColumnDefs] = useState<ColDef[]>([
-        { field: "Name" },
-        { field: "Department", cellEditor: "agTextCellEditor" },
-    ]);
+    const [columnDefs, setColumnDefs] = useState<ColDef[]>([]);
     const [rowData, setRowData] = useState<
         { Name: string; Department: string }[]
     >([]);
@@ -56,10 +53,20 @@ const GenerateCertificate = () => {
                     )
                 );
 
-                const processedData = filteredData.map((row: any) => ({
-                    Name: row[0],
-                    Department: row[1],
+                const headers = filteredData[0] as string[];
+                const dynamicColumnDefs = headers.map((header: string) => ({
+                    field: header,
+                    cellEditor: "agTextCellEditor",
                 }));
+                setColumnDefs(dynamicColumnDefs);
+
+                const processedData = filteredData.slice(1).map((row: any) => {
+                    const rowObj: any = {};
+                    headers.forEach((header: string, index: number) => {
+                        rowObj[header] = row[index];
+                    });
+                    return rowObj;
+                });
                 setRowData(processedData);
             };
             reader.readAsArrayBuffer(file);
