@@ -107,6 +107,7 @@ def generate_certificates_task(
     qr_path = os.path.join(base_dir, 'static', 'qr_code.png')
     output_directory_path = os.path.join(base_dir, output_directory)
     output_certificates_path = os.path.join(base_dir, output_directory, "certificates")
+    output_docs_path = os.path.join(base_dir, output_directory, "docs" )
 
     with open(template_path, "wb") as f:
         f.write(template_content)
@@ -123,6 +124,7 @@ def generate_certificates_task(
 
     os.makedirs(output_directory_path, exist_ok=True)
     os.makedirs(output_certificates_path, exist_ok=True)
+    os.makedirs(output_docs_path, exist_ok=True)
     all_certificates_data = []
     
     def generate_qr_code(data, qr_filename):
@@ -199,7 +201,7 @@ def generate_certificates_task(
         folder_name = segments[-1] if len(segments) > 0 else None
         print(folder_name)
 
-        html_dir = os.path.join(output_directory_path, folder_name)
+        html_dir = os.path.join(output_docs_path, folder_name)
         os.makedirs(html_dir, exist_ok=True)
 
         with open(os.path.join(html_dir, "index.html"), "w") as html_file:
