@@ -8,7 +8,7 @@ export default function HeroRetroGrid() {
                 CBIT Open Source Community's
             </span>
             <span className="pointer-events-none z-10 whitespace-pre-wrap bg-gradient-to-br from-[#d91f89] via-[#a33793] to-[#5b4da1] bg-clip-text text-center md:text-4xl text-3xl py-4 font-bold leading-none tracking-tighter text-transparent">
-                QR-verifiable certificate generator
+                QR certificate generator
             </span>
             <RetroGrid />
         </div>
